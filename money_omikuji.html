@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>お金の知恵おみくじアプリ</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Arial', serif;
+            background: linear-gradient(135deg, #2c5530, #4a7c59);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+        }
+        
+        .app-container {
+            background: #f8f6f0;
+            border: 3px solid #8b4513;
+            border-radius: 20px;
+            max-width: 400px;
+            min-height: 500px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* 起動画面 */
+        .start-screen {
+            padding: 40px 30px;
+            text-align: center;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        
+        .app-title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #8b4513;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .app-subtitle {
+            font-size: 16px;
+            color: #2c5530;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        
+        .features-list {
+            background: rgba(212, 175, 55, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            font-size: 14px;
+            color: #2c5530;
+        }
+        
+        .feature-icon {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+        
+        .start-button {
+            background: linear-gradient(135deg, #d4af37, #b8860b);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+        
+        .start-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+        }
+        
+        .instruction-text {
+            font-size: 12px;
+            color: #8b4513;
+            font-style: italic;
+        }
+        
+        /* おみくじ画面 */
+        .omikuji-screen {
+            display: none;
+            padding: 20px;
+            min-height: 500px;
+        }
+        
+        .omikuji-header {
+            text-align: center;
+            border-bottom: 2px solid #d4af37;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .back-button {
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: #8b4513;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 15px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        
+        .omikuji-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #8b4513;
+            margin-bottom: 10px;
+        }
+        
+        .fortune-level {
+            font-size: 28px;
+            font-weight: bold;
+            color: #d4af37;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .draw-section {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .omikuji-box {
+            width: 150px;
+            height: 150px;
+            background: linear-gradient(135deg, #8b4513, #a0522d);
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            position: relative;
+            clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+        }
+        
+        .omikuji-box:hover {
+            transform: scale(1.05);
+        }
+        
+        .omikuji-box.shaking {
+            animation: shake 0.5s ease-in-out infinite;
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-5deg); }
+            75% { transform: rotate(5deg); }
+        }
+        
+        .box-content {
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            text-align: center;
+        }
+        
+        .draw-button {
+            background: linear-gradient(135deg, #d4af37, #b8860b);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .draw-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+        }
+        
+        .draw-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        /* 結果表示 */
+        .result-content {
+            display: none;
+            margin-top: 20px;
+        }
+        
+        .category {
+            margin-bottom: 15px;
+            padding: 12px;
+            background: rgba(212, 175, 55, 0.1);
+            border-left: 4px solid #d4af37;
+            border-radius: 5px;
+        }
+        
+        .category-title {
+            font-weight: bold;
+            color: #8b4513;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        
+        .category-text {
+            color: #2c5530;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+        
+        .bottom-message {
+            text-align: center;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(139, 69, 19, 0.1);
+            border-radius: 10px;
+            font-size: 12px;
+            color: #8b4513;
+            font-style: italic;
+        }
+        
+        .new-draw-button {
+            background: #2c5530;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .new-draw-button:hover {
+            background: #1a3a1f;
+        }
+        
+        /* アニメーション効果 */
+        .fade-in {
+            animation: fadeIn 0.8s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .decorative-coins {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 24px;
+            opacity: 0.7;
+        }
+        
+        /* ローディング用のスピナー */
+        .loading-spinner {
+            display: none;
+            margin: 20px auto;
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #d4af37;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="decorative-coins">💰✨</div>
+        
+        <!-- 起動画面 -->
+        <div class="start-screen" id="startScreen">
+            <div class="app-title">お金の知恵<br>おみくじ</div>
+            <div class="app-subtitle">あなたの金運と<br>お金の使い方を占います</div>
+            
+            <div class="features-list">
+                <div class="feature-item">
+                    <span class="feature-icon">💸</span>
+                    <span>貯める力をアドバイス</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">📈</span>
+                    <span>増やす力をサポート</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">💪</span>
+                    <span>稼ぐ力を向上</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">🎯</span>
+                    <span>使う力を最適化</span>
+                </div>
+                <div class="feature-item">
+                    <span class="feature-icon">🛡️</span>
+                    <span>守る力を強化</span>
+                </div>
+            </div>
+            
+            <button class="start-button" onclick="startApp()">おみくじを引く</button>
+            <div class="instruction-text">画面をタップして運勢を確認しましょう</div>
+        </div>
+        
+        <!-- おみくじ画面 -->
+        <div class="omikuji-screen" id="omikujiScreen">
+            <div class="omikuji-header">
+                <button class="back-button" onclick="goBack()">← 戻る</button>
+                <div class="omikuji-title">お金の知恵おみくじ</div>
+                <div class="fortune-level" id="fortuneLevel">？</div>
+            </div>
+            
+            <div class="draw-section">
+                <div class="omikuji-box" id="omikujiBox" onclick="drawFortune()">
+                    <div class="box-content">
+                        <div>🎋</div>
+                        <div>おみくじ箱</div>
+                        <div style="font-size: 12px;">タップして引く</div>
+                    </div>
+                </div>
+                
+                <div class="loading-spinner" id="loadingSpinner"></div>
+                
+                <button class="draw-button" id="drawButton" onclick="drawFortune()">
+                    おみくじを引く
+                </button>
+            </div>
+            
+            <div class="result-content" id="resultContent">
+                <div id="fortuneCategories"></div>
+                
+                <div class="bottom-message">
+                    <div>お金は人生を豊かにする道具です</div>
+                    <div>賢く付き合って幸せな未来を築きましょう</div>
+                    <button class="new-draw-button" onclick="resetDraw()">もう一度引く</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const fortunes = {
+            '大吉': {
+                '💸 貯める力': '無駄遣いを見直す絶好の時。家計簿をつけて支出を見える化しましょう。小さな節約が大きな成果をもたらします。',
+                '📈 増やす力': '投資を始めるのに良い時期。少額からでも積立投資を検討してみましょう。時間を味方につけることが大切です。',
+                '💪 稼ぐ力': '新しいスキルを身につけるチャンス。副業や転職を考える良い機会です。自分への投資を惜しまないで。',
+                '🎯 使う力': '価値ある体験や自己投資にお金を使うとき。安いものより、長く使える質の良いものを選びましょう。',
+                '🛡️ 守る力': '保険の見直しをする時期。詐欺や怪しい投資話には十分注意して。大切な資産を守り抜きましょう。'
+            },
+            '中吉': {
+                '💸 貯める力': 'コツコツ節約を続けていけば良い結果が。固定費の見直しから始めてみましょう。継続が力なり。',
+                '📈 増やす力': '着実な資産形成の時期。リスクを抑えた投資商品から始めるのが吉。焦らず長期的な視点を。',
+                '💪 稼ぐ力': '現在の仕事でのスキルアップに注力を。資格取得や研修参加で収入アップの道筋が見えてきます。',
+                '🎯 使う力': '必要なものと欲しいものを区別して。計画的な買い物で満足度の高い消費を心がけましょう。',
+                '🛡️ 守る力': '緊急時の備えを充実させる時。生活費の3〜6ヶ月分の貯蓄を目標に堅実に進めましょう。'
+            },
+            '小吉': {
+                '💸 貯める力': '小さな工夫で支出削減を。まずは月1万円の節約から始めてみましょう。習慣化が鍵です。',
+                '📈 増やす力': '投資の勉強を始める好機。書籍やセミナーで知識を蓄えてから実践へ。準備が大切です。',
+                '💪 稼ぐ力': '今の職場での評価向上に努めて。昇給や昇進のチャンスを掴むため、実績作りに励みましょう。',
+                '🎯 使う力': '価格と品質のバランスを重視して。衝動買いを避け、一晩考えてから購入する習慣を。',
+                '🛡️ 守る力': '基本的な保険の確認を。医療保険や生命保険の内容を見直し、適切な保障を確保しましょう。'
+            },
+            '吉': {
+                '💸 貯める力': '節約の効果が現れ始める時期。続けていけば必ず結果がついてきます。油断せずに継続を。',
+                '📈 増やす力': '分散投資を心がけて。一つの商品に集中せず、リスクを分散させることで安定した成長を。',
+                '💪 稼ぐ力': '新しい収入源の検討を。本業以外の収入も視野に入れ、複数の収入の柱を築きましょう。',
+                '🎯 使う力': '長期的な価値を考えた消費を。安物買いの銭失いにならないよう、質を重視した選択を。',
+                '🛡️ 守る力': '資産の保全に意識を向けて。インフレ対策も含めて、お金の価値を守る方法を考えましょう。'
+            },
+            '半吉': {
+                '💸 貯める力': '節約は少しずつでも効果あり。完璧を目指さず、できることから始めて習慣づけしましょう。',
+                '📈 増やす力': '投資への第一歩を踏み出す時。少額から始めて、経験を積むことが将来への投資です。',
+                '💪 稼ぐ力': '現状維持から一歩前進を。新しいことにチャレンジして、収入アップの可能性を探りましょう。',
+                '🎯 使う力': '計画的な消費を心がけて。欲しいものリストを作って、優先順位をつけて購入しましょう。',
+                '🛡️ 守る力': '基本的な備えから始めて。まずは少額でも貯蓄を始め、将来への安心感を築きましょう。'
+            },
+            '末吉': {
+                '💸 貯める力': '今は我慢の時期。将来のための種まきと思って、地道な節約を続けていきましょう。',
+                '📈 増やす力': '慎重に投資の勉強を。急がず焦らず、しっかりとした知識を身につけてから始めましょう。',
+                '💪 稼ぐ力': '今は力を蓄える時。スキルアップや人脈作りに注力し、将来の収入アップに備えましょう。',
+                '🎯 使う力': '無駄遣いを控えめに。本当に必要なものかよく考えて、慎重な消費を心がけましょう。',
+                '🛡️ 守る力': '守りを固める時期。リスクの高い投資は避け、安全性を重視した資産管理を。'
+            },
+            '凶': {
+                '💸 貯める力': '支出の見直しが急務。家計の無駄を徹底的に洗い出し、本格的な節約に取り組みましょう。',
+                '📈 増やす力': '投資は慎重に。今は勉強に専念し、市場の動向をよく観察してタイミングを見計らいましょう。',
+                '💪 稼ぐ力': '収入源の安定化を図って。副業よりもまずは本業の安定と成長に集中しましょう。',
+                '🎯 使う力': '出費を最小限に抑えて。贅沢は控え、必需品のみの購入に留めることが賢明です。',
+                '🛡️ 守る力': '資産保全が最優先。リスクの高い投資は避け、元本保証の商品で安全に資産を守りましょう。'
+            }
+        };
+
+        const fortuneKeys = ['大吉', '中吉', '小吉', '吉', '半吉', '末吉', '凶'];
+        let isDrawing = false;
+
+        function startApp() {
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('omikujiScreen').style.display = 'block';
+            document.getElementById('omikujiScreen').classList.add('fade-in');
+        }
+
+        function goBack() {
+            document.getElementById('omikujiScreen').style.display = 'none';
+            document.getElementById('startScreen').style.display = 'flex';
+            resetDraw();
+        }
+
+        function drawFortune() {
+            if (isDrawing) return;
+            
+            isDrawing = true;
+            const box = document.getElementById('omikujiBox');
+            const button = document.getElementById('drawButton');
+            const spinner = document.getElementById('loadingSpinner');
+            
+            // ボタンを無効化
+            button.disabled = true;
+            button.textContent = '引いています...';
+            
+            // おみくじ箱にシェイクアニメーション
+            box.classList.add('shaking');
+            
+            // ローディングスピナー表示
+            spinner.style.display = 'block';
+            
+            // 2秒後に結果表示
+            setTimeout(() => {
+                const randomFortune = fortuneKeys[Math.floor(Math.random() * fortuneKeys.length)];
+                showResult(randomFortune);
+                
+                box.classList.remove('shaking');
+                spinner.style.display = 'none';
+                button.style.display = 'none';
+                isDrawing = false;
+            }, 2000);
+        }
+
+        function showResult(fortune) {
+            document.getElementById('fortuneLevel').textContent = fortune;
+            
+            const categoriesDiv = document.getElementById('fortuneCategories');
+            const fortuneData = fortunes[fortune];
+            
+            let html = '';
+            for (const [category, text] of Object.entries(fortuneData)) {
+                html += `
+                    <div class="category">
+                        <div class="category-title">${category}（${getCategorySubtitle(category)}）</div>
+                        <div class="category-text">${text}</div>
+                    </div>
+                `;
+            }
+            
+            categoriesDiv.innerHTML = html;
+            document.getElementById('resultContent').style.display = 'block';
+            document.getElementById('resultContent').classList.add('fade-in');
+        }
+
+        function getCategorySubtitle(category) {
+            const subtitles = {
+                '💸 貯める力': '支出を減らす力',
+                '📈 増やす力': '資産を増やす力', 
+                '💪 稼ぐ力': '収入を増やす力',
+                '🎯 使う力': 'お金からより高い価値を引き出す力',
+                '🛡️ 守る力': '資産を減らさない力'
+            };
+            return subtitles[category] || '';
+        }
+
+        function resetDraw() {
+            document.getElementById('fortuneLevel').textContent = '？';
+            document.getElementById('resultContent').style.display = 'none';
+            document.getElementById('drawButton').style.display = 'block';
+            document.getElementById('drawButton').disabled = false;
+            document.getElementById('drawButton').textContent = 'おみくじを引く';
+        }
+    </script>
+</body>
+</html>
